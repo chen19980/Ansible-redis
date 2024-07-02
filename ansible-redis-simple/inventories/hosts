@@ -1,0 +1,8 @@
+[all]
+redis1 ansible_host=172.16.247.131 ansible_user=ansel ansible_password=1234 ansible_become_password=1234 ip=172.16.247.131
+
+[redis_all]
+redis1 redis_port=6379
+
+[redis_all:vars]
+redis_home="/home/redis"

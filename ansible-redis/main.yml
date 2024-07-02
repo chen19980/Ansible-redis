@@ -1,0 +1,7 @@
+---
+- hosts: redis_all
+  name: use ansible to deploy redis
+  vars:
+    purpose: 'install'
+  roles:
+    - { role: redis-cluster, become: yes }

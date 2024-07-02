@@ -1,0 +1,10 @@
+[Unit]
+Description=Redis persistent key-value database
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/redis-server /etc/redis/redis.conf --supervised systemd
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,49 @@
+---
+- name: Install redis-server
+  apt:
+    name: redis-server
+    state: latest
+
+- name: Add user redis
+  shell: |
+    groupadd --system redis
+    useradd -s /sbin/nologin --system -g redis redis
+  ignore_errors: yes
+
+- name: change owner 
+  ignore_errors: yes
+  shell: |
+    chown -R redis:redis /etc/redis
+
+- name: Configure redis
+  lineinfile:
+    path: /etc/redis/redis.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+  # 允許所有 ip 訪問 redis
+  # ^以...開頭的行,有則替換 沒有則加上
+    - { regexp: '^bind .*$', line: 'bind 0.0.0.0' }
+  # 設定 redis port
+    - { regexp: '^port .*$', line: 'port {{redis_port}}' }
+  # 設定 redis 是否開啟保護模式
+    - { regexp: '^protected-mode .*$', line: 'protected-mode no' }
+  # 設定 redis 是否開啟 cluster
+    - { regexp: '^cluster-enabled .*$', line: 'cluster-enabled yes' }
+  # 設定 redis cluster 設定檔
+    - { regexp: '^cluster-config-file', line: 'cluster-config-file nodes.conf' }
+  # 設定 redis 叢集節點對外公佈的連接埠號
+    - { regexp: '^cluster-announce-port', line: 'cluster-announce-port {{redis_port}}' }
+  # 設定 redis 叢集節點對外公佈的 ip
+    - { regexp: '^cluster-announce-ip', line: 'cluster-announce-ip {{inventory_hostname}}' }
+  # 設定 redis 叢集節點對外公佈的匯流排連接埠號
+    - { regexp: '^cluster-announce-bus-port', line: 'cluster-announce-bus-port {{redis_port}}' }
+  # 設定 redis 的存取密碼
+    - { regexp: '^requirepass', line: 'requirepass {{redis_password}}' }
+
+# 啟動服務
+- name: Start redis service
+  systemd:
+    name: redis-server
+    state: started
+    enabled: yes

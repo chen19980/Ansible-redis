@@ -1,0 +1,13 @@
+logfile /etc/redis/{{redis_ports}}.log
+bind 0.0.0.0
+requirepass {{redispass}}
+port {{redis_ports}}
+# 啟用 redis cluster
+cluster-enabled yes
+# node 判斷失效的時間
+cluster-node-timeout 5000
+protected-mode no
+cluster-config-file nodes.conf
+cluster-announce-port {{ redis_ports }}
+cluster-announce-ip {{ redis_ip }}
+cluster-announce-bus-port {{ redis_ports }}

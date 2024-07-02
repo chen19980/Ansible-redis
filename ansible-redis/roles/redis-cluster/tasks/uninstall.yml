@@ -1,0 +1,22 @@
+- name: Stop Service
+  service:
+    name: redis_{{ redis_ports }}
+    state: stopped
+  
+- name: Disable Service
+  shell: systemctl disable redis_{{ redis_ports }}
+
+- name: Delete config
+  file: 
+    path: "/etc/redis/redis.conf"
+    state: absent
+
+- name: Delete service
+  file: 
+    path: "/etc/systemd/system/redis_{{ redis_ports }}.service"
+    state: absent
+
+- name: Remove directory
+  file:
+    path: /etc/redis/
+    state: absent

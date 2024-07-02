@@ -1,0 +1,8 @@
+---
+- name: Install redis
+  include_tasks: install.yml
+  when: purpose == 'install'
+
+- name: Uninstall redis
+  include_tasks: uninstall.yml
+  when: purpose == 'uninstall'

@@ -1,0 +1,44 @@
+---
+- name: Install Redis
+  apt:
+    name: redis-server
+    state: latest
+
+- name: create linux user
+  shell: |
+    groupadd --system redis
+    useradd -s /sbin/nologin --system -g redis redis
+  ignore_errors: yes
+
+- name: change owner 
+  ignore_errors: yes
+  shell: |
+    chown -R redis:redis /etc/redis
+
+- name: set redis config
+  template: 
+    src: templates/config.j2
+    dest: "/etc/redis/redis.conf"
+    owner: redis
+    group: redis
+ 
+- name: Copy redis's daemon config
+  template:
+    src:  templates/service.j2
+    dest: /etc/systemd/system/redis_{{ redis_ports }}.service
+    mode: '0755'
+    owner: redis
+    group: redis
+    backup: yes
+
+# 啟動服務
+- name: Start redis service
+  systemd:
+    name: redis_{{ redis_ports }}
+    state: started
+    enabled: yes    
+    daemon_reload: yes
+
+# - name: Create Cluster
+#   shell: |
+#     echo "finish create" |redis-cli -a {{redispass}} --cluster-replicas 1 --cluster create {% for host in groups['redis_all'] %} {% for redis_port in hostvars[host].redis_ports %} {{ hostvars[host].ip }}:{{ redis_ports }} {% endfor %}{% endfor %}
